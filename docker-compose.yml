@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  browser-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM=${LLM}
+    volumes:
+      - /dev/shm:/dev/shm # For Chrome memory efficiency
+      - ./models:/models

@@ -1,0 +1,6 @@
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+fastapi
+uvicorn
+playwright
+beautifulsoup4
+llama-cpp-python
