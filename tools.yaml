@@ -1,0 +1,42 @@
+# Example tools.yaml for llama-server integration
+# 
+# Usage:
+#   llama-server --model /path/to/model.gguf --tools-file tools.yaml --host 0.0.0.0 --port 8080
+#
+# Make sure the Browser Tool API is running at http://localhost:8000
+
+tools:
+  - name: browser
+    description: >
+      Use this tool to search the web, fetch a web page, or summarize text content.
+      
+      Actions:
+      - 'search': Search the web using SearXNG and return relevant results
+      - 'get_page': Fetch and extract clean text content from a web page
+      - 'summarize': Summarize long text using a local LLM
+    parameters:
+      type: object
+      properties:
+        action:
+          type: string
+          description: One of 'search', 'get_page', or 'summarize'.
+          enum: [search, get_page, summarize]
+        query:
+          type: string
+          description: Search term for 'search' action.
+        url:
+          type: string
+          description: Web page URL for 'get_page' action.
+        text:
+          type: string
+          description: Text to summarize for 'summarize' action.
+        max_results:
+          type: integer
+          description: Maximum number of search results (default 10).
+          default: 10
+        max_tokens:
+          type: integer
+          description: Maximum tokens for summarization (default 200).
+          default: 200
+      required: [action]
+    endpoint: http://localhost:8000/browser_tool

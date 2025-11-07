@@ -1,9 +1,15 @@
 import os
 import time
+import urllib.parse
 from llama_cpp import Llama
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 from typing import Optional
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class BrowserTool:
     def __init__(self):
@@ -26,32 +32,58 @@ class BrowserTool:
             self.page = await self.browser.new_page()
 
     async def web_search(self, query: str, max_results: int = 10):
+        """Search using SearXNG instance"""
         await self._setup_browser()
-        search_url = f"https://duckduckgo.com/html?q={query.replace(' ', '+')}"
-        await self.page.goto(search_url)
-
+        
+        # Use SearXNG API endpoint
+        searxng_url = os.getenv("SEARXNG_URL", "http://192.168.77.8:8888")
+        encoded_query = urllib.parse.quote_plus(query)
+        search_url = f"{searxng_url}/search?q={encoded_query}&format=json"
+        
+        logger.info(f"Searching for: {query}")
+        logger.info(f"SearXNG URL: {search_url}")
+        
         try:
-            await self.page.wait_for_selector(".result", timeout=10000)
-
-            results = []
-            search_results = await self.page.query_selector_all(".result")
-
-            for result in search_results[:max_results]:
-                try:
-                    title_element = await result.query_selector("h2 a")
-                    url_element = await result.query_selector("h2 a")
-                    snippet_element = await result.query_selector(".result__snippet")
-
-                    title = await title_element.inner_text() if title_element else ""
-                    url = await url_element.get_attribute("href") if url_element else ""
-                    snippet = await snippet_element.inner_text() if snippet_element else ""
-                    results.append({"title": title, "url": url, "snippet": snippet})
-                except Exception:
-                    continue
-
-            return results
-
-        except Exception:
+            # Navigate to the search API endpoint
+            response = await self.page.goto(search_url, wait_until="networkidle")
+            
+            if response and response.status == 200:
+                # Get the JSON response
+                content = await self.page.content()
+                
+                # Extract JSON from the page
+                soup = BeautifulSoup(content, 'html.parser')
+                pre_tag = soup.find('pre')
+                
+                if pre_tag:
+                    import json
+                    json_text = pre_tag.get_text()
+                    data = json.loads(json_text)
+                    
+                    results = []
+                    search_results = data.get('results', [])
+                    
+                    for result in search_results[:max_results]:
+                        title = result.get('title', '')
+                        url = result.get('url', '')
+                        content_snippet = result.get('content', '')
+                        
+                        if title and url:
+                            results.append({
+                                "title": title,
+                                "url": url,
+                                "snippet": content_snippet
+                            })
+                            logger.info(f"Found result: {title[:50]}...")
+                    
+                    logger.info(f"Total results found: {len(results)}")
+                    return results
+            
+            logger.warning(f"Failed to get results from SearXNG, status: {response.status if response else 'None'}")
+            return []
+            
+        except Exception as e:
+            logger.error(f"SearXNG search error: {str(e)}")
             return []
 
     async def navigate(self, url: str, wait_for_element: Optional[str] = None, wait_time: int = 10):
