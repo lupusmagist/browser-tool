@@ -2,13 +2,8 @@ FROM python:3.10-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    unzip \
-    curl \
-    apt-transport-https \
-    ca-certificates \
     build-essential \
+    cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -19,6 +14,9 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install llama-cpp-python
+RUN pip install --no-cache-dir llama-cpp-python
 
 # Install Playwright browsers
 RUN playwright install --with-deps chromium
