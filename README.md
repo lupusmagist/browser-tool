@@ -154,6 +154,117 @@ curl -X POST "http://localhost:8000/crawl" \
 - `url` (string, required): Starting URL
 - `max_depth` (integer, optional): Maximum crawl depth (default: 2)
 
+#### Get Functions
+Get all supported functions in OpenAI-compatible format.
+
+```bash
+curl -X GET "http://localhost:8000/functions"
+```
+
+**Response:**
+```json
+[
+  {
+    "name": "web_search",
+    "description": "Perform web search using SearXNG",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The search query string"
+        },
+        "max_results": {
+          "type": "integer",
+          "description": "Maximum number of search results to return",
+          "default": 10
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "navigate",
+    "description": "Navigate to a specified URL",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The URL to navigate to"
+        },
+        "wait_for_element": {
+          "type": "string",
+          "description": "CSS selector to wait for on the page"
+        },
+        "wait_time": {
+          "type": "integer",
+          "description": "Time to wait in seconds",
+          "default": 10
+        }
+      },
+      "required": ["url"]
+    }
+  },
+  {
+    "name": "extract_content",
+    "description": "Extract content from a web page",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The URL to extract content from"
+        },
+        "wait_for_element": {
+          "type": "string",
+          "description": "CSS selector to wait for before extracting"
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "summarize",
+    "description": "Summarize text using LLM",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The text to summarize"
+        },
+        "max_tokens": {
+          "type": "integer",
+          "description": "Maximum number of tokens in the summary",
+          "default": 200
+        }
+      },
+      "required": ["text"]
+    }
+  },
+  {
+    "name": "crawl",
+    "description": "Crawl website with depth control",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The starting URL to crawl"
+        },
+        "max_depth": {
+          "type": "integer",
+          "description": "Maximum crawl depth",
+          "default": 2
+        }
+      },
+      "required": ["url"]
+    }
+  }
+]
+```
+
 ## Docker Support
 
 Build and run with Docker:
