@@ -60,8 +60,19 @@ playwright install chromium
 2. Configure environment variables in `.env`:
 The model specified here is a small model that will be used for text summarization.
 eg: Qwen/Qwen3-1.7B-GGUF
+The model location will be in the project folder.
+The .env file will be slightly different depending if the app is run as a container and locally.
+
+ - Locally:  
+Look in local project root
 ```
-LLM="/path/to/your/model.gguf"
+LLM="./models/model.gguf"
+SEARXNG_URL="path to your searXNG Server"
+```
+
+- Container:
+```
+LLM="/models/model.gguf"
 SEARXNG_URL="path to your searXNG Server"
 ```
 
