@@ -1,6 +1,15 @@
 # Browser Tool API
 
 A FastAPI-based web service that provides browser automation and web search capabilities using Playwright and SearXNG.
+This is made to be a simple example of LLM tooling. MCP is not used, just basic web API calls to running server applications.
+This tool is made to be run with GPT-OSS. The API interface supports the call structure that GPT-OSS uses.
+
+For searching SearXNG is used running in a Docker container. This is a easy way to get full web searches without using a commercial API.
+If how-ever you have a search provider API, the code is easily modified to work.
+SearXNG must be installed and runnnig before this tool. (Link to instructions below)
+
+This tool also uses a small LLM for text summarization.
+Qwen3-1.7B-GGUF is a good start.
 
 ## Features
 
@@ -13,7 +22,14 @@ A FastAPI-based web service that provides browser automation and web search capa
 ## Running local for testing
 ### Setup
 
-Clone repo.
+SearXNG is needed for this to work, the easiest is to use the Docker version.
+Instructions here: https://docs.searxng.org/admin/installation-docker.html
+
+### Installing app
+Clone the repo
+```bash
+git clone https://github.com/lupusmagist/browser-tool.git
+```
 
 1. Install dependencies:
 ```bash
