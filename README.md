@@ -20,13 +20,6 @@ This tool also uses a small LLM for text summarization.
 Qwen3-1.7B-GGUF is a good start.
 This model is run only on the container CPU, but by changing the CMAKE_ARGS and installing the needed packages in the Dockerfile a GPU can be used.
 
-The tools.yaml file is a example tool file for use with llama-server. This makes gpt-oss aware that the tools are availible fot it to use.
-```bash
-llama-server \
--m gpt-oss-20b-mxfp4.gguf \
---tools tools.yaml \
---port 9999
-```
 
 ## Features
 
