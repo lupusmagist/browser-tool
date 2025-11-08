@@ -10,18 +10,26 @@ A FastAPI-based web service that provides browser automation and web search capa
 - **Text Summarization**: Summarize text using a local LLM (Llama)
 - **Web Crawling**: Crawl websites with depth control (placeholder)
 
-## Setup
+## Running local for testing
+### Setup
+
+Clone repo.
 
 1. Install dependencies:
 ```bash
+cd browser-tool
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 playwright install chromium
 ```
 
 2. Configure environment variables in `.env`:
+The model specified here is a small model that will be used for text summarization.
+eg: Qwen/Qwen3-1.7B-GGUF
 ```
 LLM="/path/to/your/model.gguf"
-SEARXNG_URL="http://192.168.77.8:8888"
+SEARXNG_URL="path to your searXNG Server"
 ```
 
 3. Run the server:
@@ -29,9 +37,9 @@ SEARXNG_URL="http://192.168.77.8:8888"
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-## API Endpoints
+### Testing API Endpoints
 
-### Web Search
+#### Web Search
 Search the web using SearXNG.
 
 ```bash
@@ -57,7 +65,7 @@ curl -X POST "http://localhost:8000/web_search" \
 }
 ```
 
-### Navigate
+#### Navigate
 Navigate to a URL with optional element waiting.
 
 ```bash
@@ -71,7 +79,7 @@ curl -X POST "http://localhost:8000/navigate" \
 - `wait_for_element` (string, optional): CSS selector to wait for
 - `wait_time` (integer, optional): Timeout in seconds (default: 10)
 
-### Extract Content
+#### Extract Content
 Extract clean text content from a web page.
 
 ```bash
@@ -84,7 +92,7 @@ curl -X POST "http://localhost:8000/extract_content" \
 - `url` (string, optional): URL to extract content from
 - `wait_for_element` (string, optional): CSS selector to wait for
 
-### Summarize
+#### Summarize
 Summarize text using a local LLM.
 
 ```bash
@@ -97,7 +105,7 @@ curl -X POST "http://localhost:8000/summarize" \
 - `text` (string, required): Text to summarize
 - `max_tokens` (integer, optional): Maximum tokens in summary (default: 200)
 
-### Crawl
+#### Crawl
 Crawl a website with depth control (placeholder implementation).
 
 ```bash
@@ -118,93 +126,35 @@ Build and run with Docker:
 docker-compose up -d
 ```
 
-## Requirements
-
-- Python 3.8+
-- Playwright
-- FastAPI
-- BeautifulSoup4
-- llama-cpp-python (for summarization)
-- SearXNG instance (for web search)
+The Docker instance will look for the small model in the specified location in the docker-compose file
+The default port used is set in the same manner.
 
 ## Unified Browser Tool Endpoint
 
-The API provides a unified `/browser_tool` endpoint that handles multiple actions through a single interface. This is ideal for integration with llama-server.
+The API provides a unified `/browser_tool` endpoint that handles multiple actions through a single interface. This is ideal for integration with llama-server for use with GPT-OSS.
 
 ### Usage Examples
 
 **Search the web:**
 ```bash
-curl -X POST "http://localhost:8000/browser_tool" \
+curl -X POST "http://docker-host:8000/browser_tool" \
   -H "Content-Type: application/json" \
   -d '{"action": "search", "query": "Python tutorials", "max_results": 5}'
 ```
 
 **Get page content:**
 ```bash
-curl -X POST "http://localhost:8000/browser_tool" \
+curl -X POST "http://docker-host:8000/browser_tool" \
   -H "Content-Type: application/json" \
   -d '{"action": "get_page", "url": "https://example.com"}'
 ```
 
 **Summarize text:**
 ```bash
-curl -X POST "http://localhost:8000/browser_tool" \
+curl -X POST "http://docker-host:8000/browser_tool" \
   -H "Content-Type: application/json" \
   -d '{"action": "summarize", "text": "Long text to summarize...", "max_tokens": 200}'
 ```
-
-## Integration with llama-server
-
-Create a `tools.yaml` file for llama-server integration:
-
-```yaml
-tools:
-  - name: browser
-    description: >
-      Use this tool to search the web, fetch a web page, or summarize text content.
-    parameters:
-      type: object
-      properties:
-        action:
-          type: string
-          description: One of 'search', 'get_page', or 'summarize'.
-          enum: [search, get_page, summarize]
-        query:
-          type: string
-          description: Search term for 'search' action.
-        url:
-          type: string
-          description: Web page URL for 'get_page' action.
-        text:
-          type: string
-          description: Text to summarize for 'summarize' action.
-        max_results:
-          type: integer
-          description: Maximum number of search results (default 10).
-          default: 10
-        max_tokens:
-          type: integer
-          description: Maximum tokens for summarization (default 200).
-          default: 200
-      required: [action]
-    endpoint: http://localhost:8000/browser_tool
-```
-
-### Start llama-server with tools
-
-```bash
-llama-server \
-  --model /path/to/your/model.gguf \
-  --tools-file tools.yaml \
-  --host 0.0.0.0 \
-  --port 8080
-```
-
-The LLM will now be able to:
-- Search the web for information
-- Fetch and extract content from web pages
-- Summarize long texts
 
 ## Notes
 
@@ -212,4 +162,4 @@ The LLM will now be able to:
 - The summarization feature requires a local LLM model in GGUF format
 - Browser instances are automatically managed and cleaned up after each request
 - The unified `/browser_tool` endpoint is recommended for llama-server integration
-- Individual endpoints (`/web_search`, `/extract_content`, etc.) are still available for direct API usage
+- Individual endpoints (`/web_search`, `/extract_content`, etc.) are available for direct API usage
