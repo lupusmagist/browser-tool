@@ -2,11 +2,10 @@
 
 A FastAPI-based web service that provides browser automation and web search capabilities using Playwright and SearXNG.
 This is made to be a simple example of LLM tooling. MCP is not used, just basic web API calls to running server applications.
-This tool is made to be run with gpt-oss. The API interface supports the call structure that gpt-oss uses.
 
 ```mermaid
 flowchart TD
-    A[gpt-oss] -->|browser querry| B(browser-tool)
+    A[LLM] -->|browser querry| B(browser-tool)
     B -->|search| D[SearXNG]
     B -->|navigate| E[Playwright]
     B -->|summarize| F[small LLM]
