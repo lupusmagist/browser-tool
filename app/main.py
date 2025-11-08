@@ -34,6 +34,9 @@ class BrowserToolRequest(BaseModel):
     text: Optional[str] = None
     max_results: Optional[int] = 10
     max_tokens: Optional[int] = 200
+class CallRequest(BaseModel):
+    function: str
+    arguments: dict = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -148,6 +151,51 @@ async def browser_tool(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/call")
+async def call_function(
+    request: CallRequest,
+    browser: BrowserTool = Depends(get_browser_tool)
+):
+    """Call a function dynamically based on the request"""
+    try:
+        function_name = request.function
+        args = request.arguments
+
+        # Map function names to actual methods
+        function_map = {
+            "web_search": browser.web_search,
+            "navigate": browser.navigate,
+            "extract_content": browser.extract_content,
+            "summarize": browser.summarize,
+            # Add more functions as needed
+        }
+
+        if function_name not in function_map:
+            raise HTTPException(status_code=400, detail=f"Function '{function_name}' not found")
+
+        func = function_map[function_name]
+
+        # Call the function with provided arguments
+        if function_name == "web_search":
+            result = await func(args.get("query"), args.get("max_results", 10))
+            return {"result": result}
+        elif function_name == "navigate":
+            await func(args.get("url"), args.get("wait_for_element"), args.get("wait_time", 10))
+            return {"status": "success", "message": "Navigation completed"}
+        elif function_name == "extract_content":
+            result = await func(args.get("url"), args.get("wait_for_element"))
+            return {"result": result}
+        elif function_name == "summarize":
+            result = await func(args.get("text"), args.get("max_tokens", 200))
+            return {"result": result}
+        else:
+            raise HTTPException(status_code=400, detail=f"Function '{function_name}' not implemented")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/functions")
 def get_functions():
     """Get all supported functions in OpenAI-compatible format"""
@@ -248,6 +296,25 @@ def get_functions():
                     }
                 },
                 "required": ["url"]
+            }
+        },
+        {
+            "name": "call",
+            "description": "Call a function dynamically by name with arguments",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "function": {
+                        "type": "string",
+                        "description": "The name of the function to call"
+                    },
+                    "arguments": {
+                        "type": "object",
+                        "description": "Arguments to pass to the function",
+                        "default": {}
+                    }
+                },
+                "required": ["function"]
             }
         }
     ]
