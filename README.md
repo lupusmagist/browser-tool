@@ -2,7 +2,15 @@
 
 A FastAPI-based web service that provides browser automation and web search capabilities using Playwright and SearXNG.
 This is made to be a simple example of LLM tooling. MCP is not used, just basic web API calls to running server applications.
-This tool is made to be run with GPT-OSS. The API interface supports the call structure that GPT-OSS uses.
+This tool is made to be run with gpt-oss. The API interface supports the call structure that gpt-oss uses.
+
+```mermaid
+flowchart TD
+    A[gpt-oss] -->|browser querry| B(browser-tool)
+    B -->|search| D[SearXNG]
+    B -->|navigate| E[Playwright]
+    B -->|summarize| F[small LLM]
+```
 
 For searching SearXNG is used running in a Docker container. This is a easy way to get full web searches without using a commercial API.
 If how-ever you have a search provider API, the code is easily modified to work.
@@ -10,6 +18,15 @@ SearXNG must be installed and runnnig before this tool. (Link to instructions be
 
 This tool also uses a small LLM for text summarization.
 Qwen3-1.7B-GGUF is a good start.
+This model is run only on the container CPU, but by changing the CMAKE_ARGS and installing the needed packages in the Dockerfile a GPU can be used.
+
+The tools.yaml file is a example tool file for use with llama-server. This makes gpt-oss aware that the tools are availible fot it to use.
+```bash
+llama-server \
+-m gpt-oss-20b-mxfp4.gguf \
+--tools tools.yaml \
+--port 9999
+```
 
 ## Features
 
