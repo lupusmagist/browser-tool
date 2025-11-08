@@ -2,7 +2,7 @@ services:
   browser-api:
     build: .
     ports:
-      - "8000:8000"
+      - "9081:8000"
     environment:
       - LLM=${LLM}
     volumes:
