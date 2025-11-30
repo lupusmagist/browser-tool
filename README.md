@@ -1,3 +1,6 @@
+# Notice: This app is only a example now. It is not being used.
+# Rather use the newer MCP version: https://github.com/lupusmagist/mcp_browser_tool
+
 # Browser Tool API
 
 A FastAPI-based web service that provides browser automation and web search capabilities using Playwright and SearXNG.
